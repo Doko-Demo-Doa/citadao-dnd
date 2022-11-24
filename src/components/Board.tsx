@@ -13,8 +13,6 @@ const finalArr = arr.map((n, idx) =>
     .map((_, i) => i + 1 + (idx + 1) * SIZE - SIZE)
 );
 
-console.log(finalArr);
-
 function Board() {
   const [arr, setArr] = useState(finalArr);
 

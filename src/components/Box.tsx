@@ -28,26 +28,29 @@ export default function Box({ itemVal, idx, onDropped }: Props) {
       }),
       item: { itemVal, idx },
     }),
-    [itemVal]
+    [idx]
   );
 
-  const [{ canDrop, isOver, item }, drop] = useDrop(() => ({
-    accept: "BOX",
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-      item: monitor.getItem(),
+  const [{ canDrop, isOver, item }, drop] = useDrop(
+    () => ({
+      accept: "BOX",
+      collect: (monitor) => ({
+        isOver: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+        item: monitor.getItem(),
+      }),
+      hover(item, monitor) {
+        if (!ref.current) {
+          return;
+        }
+      },
+      drop(item: any, monitor) {
+        // Source, target
+        onDropped?.(item.idx, idx, item.itemVal, itemVal);
+      },
     }),
-    hover(item, monitor) {
-      if (!ref.current) {
-        return;
-      }
-    },
-    drop(item: any, monitor) {
-      // Source, target
-      onDropped?.(item.idx, idx, item.itemVal, itemVal);
-    },
-  }));
+    [idx]
+  );
 
   drag(drop(ref));
 
