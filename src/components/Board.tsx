@@ -1,8 +1,5 @@
-import { useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
-
 import Box from "./Box";
+import Square from "./Square";
 
 const SIZE = 8;
 
@@ -18,14 +15,12 @@ const finalArr = arr.map((n, idx) => ({
 }));
 
 function Board() {
-  const [count, setCount] = useState(0);
-
   return (
-    <DndProvider backend={HTML5Backend}>
+    <>
       {finalArr.map((n, idx) => (
-        <div key={idx} style={{ display: "flex" }}>
+        <div key={idx} style={{ display: "flex", position: "relative" }}>
           {n.vert.map((n2, idx2) => (
-            <Box
+            <Square
               key={idx2}
               itemKey={n2.verticalVal + (idx + 1) * 8 - 8}
               itemVal={n2.verticalVal + (idx + 1) * 8 - 8}
@@ -33,7 +28,7 @@ function Board() {
           ))}
         </div>
       ))}
-    </DndProvider>
+    </>
   );
 }
 

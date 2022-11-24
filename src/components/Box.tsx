@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from "react";
+import { FC, ReactNode, useRef, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 export interface SquareProps {
@@ -8,30 +8,24 @@ export interface SquareProps {
 const SIZE = "60px";
 
 interface Props {
-  itemKey: number;
   itemVal: number;
+  onDropped?: (source: number, target: number) => void | undefined;
 }
 
-export default function Box({ itemKey, itemVal }: Props) {
-  const [boxKey, setBoxKey] = useState(itemKey);
-  const [boxVal, setBoxVal] = useState(itemVal);
-
+export default function Box({ itemVal, onDropped }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag, dragPreview] = useDrag(
     () => ({
       type: "BOX",
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
-      item: { boxKey, boxVal, isSource: true },
+      item: { itemVal },
       end: (item, monitor) => {
-        // console.log(item, monitor.getItem());
-        if (!monitor.getItem().isSource) {
-          setBoxKey(monitor.getItem().boxKey);
-          setBoxVal(monitor.getItem().boxVal);
-        }
+        // console.log("source", itemVal);
       },
     }),
-    [boxKey]
+    [itemVal]
   );
 
   const [{ canDrop, isOver, item }, drop] = useDrop(() => ({
@@ -43,43 +37,32 @@ export default function Box({ itemKey, itemVal }: Props) {
       canDrop: monitor.canDrop(),
       item: monitor.getItem(),
     }),
-    drop: (item, monitor) => {
-      if (item.isSource) {
-        setBoxKey(item.boxKey);
-        setBoxVal(item.boxVal);
+    hover(item, monitor) {
+      if (!ref.current) {
+        return;
       }
+    },
+    drop(item: any, monitor) {
+      onDropped?.(item.itemVal, itemVal);
     },
   }));
 
-  console.log({ itemKey, itemVal });
+  drag(drop(ref));
 
   return (
-    <div ref={drop} style={{ backgroundColor: isOver ? "red" : undefined }}>
-      <div
-        ref={dragPreview}
-        style={{
-          opacity: isDragging ? 0.5 : 1,
-          width: SIZE,
-          height: SIZE,
-          margin: "1rem",
-          backgroundColor: "blue",
-        }}
-      >
-        {/* The drag ref marks this node as being the "pick-up" node */}
-        <div
-          role="Handle"
-          ref={drag}
-          style={{
-            width: SIZE,
-            height: SIZE,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {boxVal}
-        </div>
-      </div>
+    <div
+      ref={ref}
+      style={{
+        width: SIZE,
+        height: SIZE,
+        margin: "1rem",
+        backgroundColor: "green",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      {itemVal}
     </div>
   );
 }

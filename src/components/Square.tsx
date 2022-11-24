@@ -13,39 +13,23 @@ interface Props {
   itemVal: number;
 }
 
-interface ItemType {
-  boxKey: number;
-  boxVal: number;
-}
-
 export default function Square({ itemKey, itemVal }: Props) {
-  const [boxKey, setBoxKey] = useState(itemKey);
   const [boxVal, setBoxVal] = useState(itemVal);
-
-  const [squareKey, setSquareKey] = useState(itemKey);
-  const [squareVal, setSquareVal] = useState(itemVal);
-
-  const [{ canDrop, isOver, item }, drop] = useDrop(() => ({
-    // The type (or types) to accept - strings or symbols
-    accept: "BOX",
-    // Props to collect
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-      item: monitor.getItem(),
-    }),
-    drop(item, monitor) {
-      console.log("item", item);
-      console.log("tar", boxVal);
-
-      setBoxKey(item.boxKey);
-      setBoxVal(item.boxVal);
-    },
-  }));
+  const [dropTargetVal, setDropTargetVal] = useState(itemKey);
 
   return (
-    <div ref={drop} style={{ backgroundColor: isOver ? "red" : undefined }}>
-      <Box itemKey={boxKey} itemVal={boxVal} />
+    <div
+      style={{
+        position: "relative",
+        transition: "0.2s linear all",
+      }}
+    >
+      <Box
+        itemVal={boxVal}
+        onDropped={(newV) => {
+          console.log(newV);
+        }}
+      />
     </div>
   );
 }
