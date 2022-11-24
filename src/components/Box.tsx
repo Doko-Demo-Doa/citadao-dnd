@@ -1,5 +1,5 @@
-import type { FC, ReactNode } from "react";
-import { useDrag } from "react-dnd";
+import { FC, ReactNode, useState } from "react";
+import { useDrag, useDrop } from "react-dnd";
 
 export interface SquareProps {
   children?: ReactNode;
@@ -13,41 +13,72 @@ interface Props {
 }
 
 export default function Box({ itemKey, itemVal }: Props) {
-  const [{ isDragging }, drag, dragPreview] = useDrag(() => ({
-    // "type" is required. It is used by the "accept" specification of drop targets.
-    type: "BOX",
-    // The collect function utilizes a "monitor" instance (see the Overview for what this is)
-    // to pull important pieces of state from the DnD system.
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
+  const [boxKey, setBoxKey] = useState(itemKey);
+  const [boxVal, setBoxVal] = useState(itemVal);
+
+  const [{ isDragging }, drag, dragPreview] = useDrag(
+    () => ({
+      type: "BOX",
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+      item: { boxKey, boxVal, isSource: true },
+      end: (item, monitor) => {
+        // console.log(item, monitor.getItem());
+        if (!monitor.getItem().isSource) {
+          setBoxKey(monitor.getItem().boxKey);
+          setBoxVal(monitor.getItem().boxVal);
+        }
+      },
     }),
+    [boxKey]
+  );
+
+  const [{ canDrop, isOver, item }, drop] = useDrop(() => ({
+    // The type (or types) to accept - strings or symbols
+    accept: "BOX",
+    // Props to collect
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+      item: monitor.getItem(),
+    }),
+    drop: (item, monitor) => {
+      if (item.isSource) {
+        setBoxKey(item.boxKey);
+        setBoxVal(item.boxVal);
+      }
+    },
   }));
 
-  return (
-    <div
-      ref={dragPreview}
-      style={{
-        opacity: isDragging ? 0.5 : 1,
-        width: SIZE,
-        height: SIZE,
-        margin: "1rem",
+  console.log({ itemKey, itemVal });
 
-        backgroundColor: "blue",
-      }}
-    >
-      {/* The drag ref marks this node as being the "pick-up" node */}
+  return (
+    <div ref={drop} style={{ backgroundColor: isOver ? "red" : undefined }}>
       <div
-        role="Handle"
-        ref={drag}
+        ref={dragPreview}
         style={{
+          opacity: isDragging ? 0.5 : 1,
           width: SIZE,
           height: SIZE,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          margin: "1rem",
+          backgroundColor: "blue",
         }}
       >
-        {itemVal}
+        {/* The drag ref marks this node as being the "pick-up" node */}
+        <div
+          role="Handle"
+          ref={drag}
+          style={{
+            width: SIZE,
+            height: SIZE,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {boxVal}
+        </div>
       </div>
     </div>
   );

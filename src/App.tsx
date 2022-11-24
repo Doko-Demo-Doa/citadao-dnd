@@ -3,7 +3,6 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import "./App.css";
-import Bucket from "./components/Bucket";
 import Box from "./components/Box";
 import Board from "./components/Board";
 
