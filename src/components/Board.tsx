@@ -1,29 +1,39 @@
-import Box from "./Box";
+import { useState } from "react";
 import Square from "./Square";
 
 const SIZE = 8;
 
 const arr = Array(SIZE)
   .fill(2)
-  .map((_, i) => ({ horizontalKey: i + 1, horizontalVal: i + 1 }));
+  .map((_, i) => ({}));
 
-const finalArr = arr.map((n, idx) => ({
-  ...n,
-  vert: Array(SIZE)
+const finalArr = arr.map((n, idx) =>
+  Array(SIZE)
     .fill(2)
-    .map((_, i) => ({ verticalKey: n.horizontalKey + 1, verticalVal: i + 1 })),
-}));
+    .map((_, i) => i + 1 + (idx + 1) * SIZE - SIZE)
+);
+
+console.log(finalArr);
 
 function Board() {
+  const [arr, setArr] = useState(finalArr);
+
   return (
     <>
       {finalArr.map((n, idx) => (
         <div key={idx} style={{ display: "flex", position: "relative" }}>
-          {n.vert.map((n2, idx2) => (
+          {n.map((n2, idx2) => (
             <Square
+              idx={[idx2, idx]}
               key={idx2}
-              itemKey={n2.verticalVal + (idx + 1) * 8 - 8}
-              itemVal={n2.verticalVal + (idx + 1) * 8 - 8}
+              itemVal={n2}
+              onDropped={(source, target, sourceVal, targetVal) => {
+                let newArr = [...arr];
+                newArr[source[1]][source[0]] = targetVal;
+                newArr[target[1]][target[0]] = sourceVal;
+
+                setArr(newArr);
+              }}
             />
           ))}
         </div>

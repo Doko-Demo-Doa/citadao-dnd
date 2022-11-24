@@ -1,4 +1,4 @@
-import { FC, ReactNode, useRef, useState } from "react";
+import { ReactNode, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 
 export interface SquareProps {
@@ -8,11 +8,17 @@ export interface SquareProps {
 const SIZE = "60px";
 
 interface Props {
+  idx: [number, number];
   itemVal: number;
-  onDropped?: (source: number, target: number) => void | undefined;
+  onDropped?: (
+    source: [number, number],
+    target: [number, number],
+    sourceVal: number,
+    targetVal: number
+  ) => void | undefined;
 }
 
-export default function Box({ itemVal, onDropped }: Props) {
+export default function Box({ itemVal, idx, onDropped }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [{ isDragging }, drag, dragPreview] = useDrag(
     () => ({
@@ -20,18 +26,13 @@ export default function Box({ itemVal, onDropped }: Props) {
       collect: (monitor) => ({
         isDragging: monitor.isDragging(),
       }),
-      item: { itemVal },
-      end: (item, monitor) => {
-        // console.log("source", itemVal);
-      },
+      item: { itemVal, idx },
     }),
     [itemVal]
   );
 
   const [{ canDrop, isOver, item }, drop] = useDrop(() => ({
-    // The type (or types) to accept - strings or symbols
     accept: "BOX",
-    // Props to collect
     collect: (monitor) => ({
       isOver: monitor.isOver(),
       canDrop: monitor.canDrop(),
@@ -43,7 +44,8 @@ export default function Box({ itemVal, onDropped }: Props) {
       }
     },
     drop(item: any, monitor) {
-      onDropped?.(item.itemVal, itemVal);
+      // Source, target
+      onDropped?.(item.idx, idx, item.itemVal, itemVal);
     },
   }));
 

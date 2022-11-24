@@ -1,22 +1,26 @@
-import { FC, ReactNode, useState } from "react";
-import { useDrag, useDrop } from "react-dnd";
+import { ReactNode } from "react";
 import Box from "./Box";
 
 export interface SquareProps {
   children?: ReactNode;
 }
 
-const SIZE = "60px";
-
 interface Props {
-  itemKey: number;
   itemVal: number;
 }
 
-export default function Square({ itemKey, itemVal }: Props) {
-  const [boxVal, setBoxVal] = useState(itemVal);
-  const [dropTargetVal, setDropTargetVal] = useState(itemKey);
+interface Props {
+  idx: [number, number];
+  itemVal: number;
+  onDropped?: (
+    source: [number, number],
+    target: [number, number],
+    sourceVal: number,
+    targetVal: number
+  ) => void | undefined;
+}
 
+export default function Square({ itemVal, idx, onDropped }: Props) {
   return (
     <div
       style={{
@@ -25,9 +29,10 @@ export default function Square({ itemKey, itemVal }: Props) {
       }}
     >
       <Box
-        itemVal={boxVal}
-        onDropped={(newV) => {
-          console.log(newV);
+        idx={idx}
+        itemVal={itemVal}
+        onDropped={(source, target, sourceVal, targetVal) => {
+          onDropped?.(source, target, sourceVal, targetVal);
         }}
       />
     </div>
